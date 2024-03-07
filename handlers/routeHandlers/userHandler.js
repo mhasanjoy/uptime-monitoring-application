@@ -10,6 +10,7 @@
 // dependencies
 const data = require('../../lib/data');
 const { hash, parseJSON } = require('../../helpers/utilities');
+const tokenHandler = require('./tokenHandler');
 
 // module scaffolding
 const handler = {};
@@ -98,14 +99,26 @@ handler._users.get = (requestedProperties, callback) => {
             : null;
 
     if (phone) {
-        // lookup the user
-        data.read('users', phone, (err, userData) => {
-            const user = { ...parseJSON(userData) };
-            if (!err && user) {
-                delete user.phone;
-                callback(200, user);
+        // verify token
+        const token =
+            typeof requestedProperties.headersObject.token === 'string'
+                ? requestedProperties.headersObject.token
+                : null;
+
+        tokenHandler._token.verify(token, phone, (tokenId) => {
+            if (tokenId) {
+                // lookup the user
+                data.read('users', phone, (err, userData) => {
+                    const user = { ...parseJSON(userData) };
+                    if (!err && user) {
+                        delete user.phone;
+                        callback(200, user);
+                    } else {
+                        callback(404, { error: 'Requested user was not found!' });
+                    }
+                });
             } else {
-                callback(404, { error: 'Requested user was not found!' });
+                callback(403, { error: 'Authentication failed!' });
             }
         });
     } else {
@@ -140,30 +153,44 @@ handler._users.put = (requestedProperties, callback) => {
 
     if (phone) {
         if (firstName || lastName || password) {
-            // lookup the user
-            data.read('users', phone, (err1, userData) => {
-                const user = { ...parseJSON(userData) };
-                if (!err1 && user) {
-                    if (firstName) {
-                        user.firstName = firstName;
-                    }
-                    if (lastName) {
-                        user.lastName = lastName;
-                    }
-                    if (password) {
-                        user.password = hash(password);
-                    }
+            // verify token
+            const token =
+                typeof requestedProperties.headersObject.token === 'string'
+                    ? requestedProperties.headersObject.token
+                    : null;
 
-                    // store to db
-                    data.update('users', phone, user, (err2) => {
-                        if (!err2) {
-                            callback(200, { message: 'User was updated successfully!' });
+            tokenHandler._token.verify(token, phone, (tokenId) => {
+                if (tokenId) {
+                    // lookup the user
+                    data.read('users', phone, (err1, userData) => {
+                        const user = { ...parseJSON(userData) };
+                        if (!err1 && user) {
+                            if (firstName) {
+                                user.firstName = firstName;
+                            }
+                            if (lastName) {
+                                user.lastName = lastName;
+                            }
+                            if (password) {
+                                user.password = hash(password);
+                            }
+
+                            // store to db
+                            data.update('users', phone, user, (err2) => {
+                                if (!err2) {
+                                    callback(200, { message: 'User was updated successfully!' });
+                                } else {
+                                    callback(500, {
+                                        error: 'There was a problem in the server side!',
+                                    });
+                                }
+                            });
                         } else {
-                            callback(500, { error: 'There was a problem in the server side!' });
+                            callback(400, { error: 'You have a problem in your request!' });
                         }
                     });
                 } else {
-                    callback(400, { error: 'You have a problem in your request!' });
+                    callback(403, { error: 'Authentication failed!' });
                 }
             });
         } else {
@@ -183,18 +210,30 @@ handler._users.delete = (requestedProperties, callback) => {
             : null;
 
     if (phone) {
-        // lookup the user
-        data.read('users', phone, (err1, userData) => {
-            if (!err1 && userData) {
-                data.delete('users', phone, (err2) => {
-                    if (!err2) {
-                        callback(200, { message: 'User was successfully deleted!' });
+        // verify token
+        const token =
+            typeof requestedProperties.headersObject.token === 'string'
+                ? requestedProperties.headersObject.token
+                : null;
+
+        tokenHandler._token.verify(token, phone, (tokenId) => {
+            if (tokenId) {
+                // lookup the user
+                data.read('users', phone, (err1, userData) => {
+                    if (!err1 && userData) {
+                        data.delete('users', phone, (err2) => {
+                            if (!err2) {
+                                callback(200, { message: 'User was successfully deleted!' });
+                            } else {
+                                callback(500, { error: 'There was a server side error!' });
+                            }
+                        });
                     } else {
                         callback(500, { error: 'There was a server side error!' });
                     }
                 });
             } else {
-                callback(500, { error: 'There was a server side error!' });
+                callback(403, { error: 'Authentication failed!' });
             }
         });
     } else {

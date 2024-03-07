@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /*
  * Title: Utilities
  * Description: Important utility functions
@@ -31,6 +32,24 @@ utilities.hash = (str) => {
         return hash;
     }
 
+    return null;
+};
+
+// create random string
+utilities.createRandomString = (strLength) => {
+    const length = typeof strLength === 'string' && strLength.length > 0 ? strLength : null;
+
+    if (length) {
+        const possibleCharacters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let output = '';
+        for (let i = 1; i <= length; i++) {
+            const randomCharacter = possibleCharacters.charAt(
+                Math.floor(Math.random() * possibleCharacters.length)
+            );
+            output = output.concat(randomCharacter);
+        }
+        return output;
+    }
     return null;
 };
 
