@@ -216,8 +216,8 @@ handler._users.delete = (requestedProperties, callback) => {
                 ? requestedProperties.headersObject.token
                 : null;
 
-        tokenHandler._token.verify(token, phone, (tokenId) => {
-            if (tokenId) {
+        tokenHandler._token.verify(token, phone, (tokenIsValid) => {
+            if (tokenIsValid) {
                 // lookup the user
                 data.read('users', phone, (err1, userData) => {
                     if (!err1 && userData) {
