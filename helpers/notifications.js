@@ -21,7 +21,9 @@ notifications.sendTwilioSMS = (phone, msg, callback) => {
         typeof phone === 'string' && phone.trim().length === 11 ? phone.trim() : false;
 
     const userMsg =
-        typeof msg === 'string' && msg.trim().length > 0 && msg.trim() <= 1600 ? msg.trim() : false;
+        typeof msg === 'string' && msg.trim().length > 0 && msg.trim().length <= 1600
+            ? msg.trim()
+            : false;
 
     if (userPhone && userMsg) {
         // configure the request payload

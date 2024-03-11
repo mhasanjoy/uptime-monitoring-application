@@ -37,7 +37,7 @@ utilities.hash = (str) => {
 
 // create random string
 utilities.createRandomString = (strLength) => {
-    const length = typeof strLength === 'string' && strLength.length > 0 ? strLength : null;
+    const length = typeof strLength === 'number' && strLength > 0 ? strLength : null;
 
     if (length) {
         const possibleCharacters = 'abcdefghijklmnopqrstuvwxyz0123456789';

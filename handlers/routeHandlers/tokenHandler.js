@@ -98,15 +98,15 @@ handler._token.get = (requestedProperties, callback) => {
 
 handler._token.put = (requestedProperties, callback) => {
     const id =
-        typeof requestedProperties.queryStringObject.id === 'string' &&
-        requestedProperties.queryStringObject.id.trim().length === 20
-            ? requestedProperties.queryStringObject.id
+        typeof requestedProperties.body.id === 'string' &&
+        requestedProperties.body.id.trim().length === 20
+            ? requestedProperties.body.id
             : null;
 
     const extend =
-        typeof requestedProperties.queryStringObject.extend === 'boolean' &&
-        requestedProperties.queryStringObject.extend === true
-            ? requestedProperties.queryStringObject.extend
+        typeof requestedProperties.body.extend === 'boolean' &&
+        requestedProperties.body.extend === true
+            ? requestedProperties.body.extend
             : false;
 
     if (id && extend) {

@@ -52,8 +52,7 @@ handler._users.post = (requestedProperties, callback) => {
             : null;
 
     const tosAgreement =
-        typeof requestedProperties.body.tosAgreement === 'boolean' &&
-        requestedProperties.body.tosAgreement.trim().length > 0
+        typeof requestedProperties.body.tosAgreement === 'boolean'
             ? requestedProperties.body.tosAgreement
             : null;
 
@@ -111,7 +110,7 @@ handler._users.get = (requestedProperties, callback) => {
                 data.read('users', phone, (err, userData) => {
                     const user = { ...parseJSON(userData) };
                     if (!err && user) {
-                        delete user.phone;
+                        delete user.password;
                         callback(200, user);
                     } else {
                         callback(404, { error: 'Requested user was not found!' });
